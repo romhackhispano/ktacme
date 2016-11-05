@@ -6,12 +6,15 @@ class TextParser(val text: String) {
 	val length: Int get() = text.length
 	val eof: Boolean get() = pos >= text.length
 	val hasMore: Boolean get() = !eof
+	val pending: Int get() = length - pos
 
 	private fun clamp(v: Int, min: Int, max: Int) = Math.min(max, Math.max(v, min))
 
 	fun slice(start: Int, end: Int) = this.text.substring(clamp(start, 0, this.length), clamp(end, 0, this.length))
 
 	fun substr(start: Int, count: Int) = this.slice(start, start + count)
+
+	fun readPending() = read(pending)
 
 	fun read(count: Int): String {
 		val out = this.substr(pos, count)
@@ -41,8 +44,12 @@ class TextParser(val text: String) {
 
 	fun readUntil(ch: Char): String {
 		val start = pos
-		while (hasMore && readch() != ch) Unit
-		unread(1)
+		while (hasMore) {
+			if (readch() == ch) {
+				unread(1)
+				break
+			}
+		}
 		val end = pos
 		return this.text.substring(start, end)
 	}

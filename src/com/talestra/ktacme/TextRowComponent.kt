@@ -1,11 +1,9 @@
 package com.talestra.ktacme
 
+import java.awt.Color
 import java.awt.Dimension
 import java.awt.GridLayout
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JScrollPane
-import javax.swing.JTextArea
+import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
@@ -13,6 +11,8 @@ class TextRowComponent : JPanel() {
 	private val idLabel = JLabel("ID")
 	private val originalTextArea = JTextArea()
 	private val translatedTextArea = JTextArea()
+	private val translatedCheckBox = JCheckBox("Translated")
+	private val reviewedCheckBox = JCheckBox("Reviewed")
 
 	init {
 		preferredSize = Dimension(512, 128)
@@ -20,6 +20,8 @@ class TextRowComponent : JPanel() {
 
 		add(JPanel().apply {
 			add(idLabel.apply { maximumSize = Dimension(128, 128) })
+			add(translatedCheckBox)
+			add(reviewedCheckBox)
 		})
 
 		originalTextArea.isEditable = false
@@ -37,13 +39,51 @@ class TextRowComponent : JPanel() {
 				entry.translated = translatedTextArea.text
 			}
 		})
+		translatedCheckBox.addActionListener {
+			entry.isTranslated = translatedCheckBox.isSelected
+			setTranslated(translatedCheckBox.isSelected)
+		}
+		reviewedCheckBox.addActionListener {
+			entry.isReviewed = reviewedCheckBox.isSelected
+			setReviewed(reviewedCheckBox.isSelected)
+		}
 	}
 
 	open class TextEntry(
 		open var id: String,
 		open var original: String,
 		open var translated: String
-	)
+	) {
+		var isTranslated: Boolean = false
+		var isReviewed: Boolean = false
+	}
+
+	private fun updateColors(translated: Boolean, reviewed: Boolean) {
+		val color = if (reviewed) {
+			Color(0xDDFFDD)
+		} else if (translated) {
+			Color(0xDDDDFF)
+		} else {
+			Color(0xFFFFFF)
+		}
+		originalTextArea.background = color
+		translatedTextArea.background = color
+	}
+
+	private fun updateColors() {
+		updateColors(translatedCheckBox.isSelected, reviewedCheckBox.isSelected)
+	}
+
+	private fun setReviewed(checked: Boolean) {
+		reviewedCheckBox.isSelected = checked
+		updateColors()
+	}
+
+	private fun setTranslated(checked: Boolean) {
+		translatedCheckBox.isSelected = checked
+		reviewedCheckBox.isEnabled = checked
+		updateColors()
+	}
 
 	var entry: TextEntry = TextEntry("ID", "ORIGINAL", "TRANSLATED")
 		set(value) {
@@ -51,5 +91,7 @@ class TextRowComponent : JPanel() {
 			idLabel.text = field.id
 			originalTextArea.text = field.original
 			translatedTextArea.text = field.translated
+			setTranslated(field.isTranslated)
+			setReviewed(field.isReviewed)
 		}
 }

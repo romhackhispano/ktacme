@@ -56,7 +56,7 @@ class GitClient(val folder: File, val git: Git) {
 	}
 
 	fun add(file: File) {
-		git.add().addFilepattern(file.relativeTo(folder).path).call()
+		git.add().addFilepattern(file.relativeTo(folder).path).setUpdate(true).call()
 	}
 
 	fun commit(message: String, userName: String = defaultUserName, userEmail:String = defaultUserEmail) {
@@ -64,11 +64,34 @@ class GitClient(val folder: File, val git: Git) {
 	}
 
 	fun pull(remote: String = defaultRemote) {
-		git.pull().setRemote(remote).setCredentialsProvider(sdcp).call()
+		if (git.remoteList().call().firstOrNull { it.name == "origin" } == null) {
+			val remoteUrl = git.remoteAdd()
+			remoteUrl.setName("origin")
+			remoteUrl.setUri(URIish(remote))
+			remoteUrl.call()
+		} else {
+			val remoteUrl = git.remoteSetUrl()
+			remoteUrl.setName("origin")
+			remoteUrl.setUri(URIish(remote))
+			remoteUrl.call()
+		}
+		//git.pull().setRemoteBranchName("master").setRemote(remote).setCredentialsProvider(sdcp).call()
+		git.pull().setRemoteBranchName("master").setRemote("origin").setCredentialsProvider(sdcp).call()
 	}
 
 	fun push(remote: String = defaultRemote) {
 		git.push().setRemote(remote).setCredentialsProvider(sdcp).call()
+	}
+
+	fun hasChanges(): Boolean {
+		return !isClean();
+	}
+
+	fun isClean(): Boolean {
+		//val status = git.status().addPath("/").call()
+		val status = git.status().call()
+		return status.isClean
+		//println(status)
 	}
 }
 
