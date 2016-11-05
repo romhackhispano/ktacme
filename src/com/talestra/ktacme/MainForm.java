@@ -2,13 +2,14 @@ package com.talestra.ktacme;
 
 import javax.swing.*;
 
-public class Demo extends JFrame {
+public class MainForm extends JFrame {
     private JPanel contentPane;
-    private JComboBox comboBox1;
-    private JButton saveButton;
+    public JComboBox sectionComboBox;
+    public JButton saveButton;
     public TextRowsComponent textRowsComponent;
+    public JButton syncButton;
 
-    public Demo() {
+    public MainForm() {
         setContentPane(contentPane);
     }
 }

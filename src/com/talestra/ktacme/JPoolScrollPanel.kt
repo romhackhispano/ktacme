@@ -86,8 +86,8 @@ abstract class JPoolScrollPanel<T : JComponent> : JPanel() {
 			//println(e)
 			//e.scrollType
 			when (e.scrollType) {
-				MouseWheelEvent.WHEEL_UNIT_SCROLL -> scrollBar.value += e.scrollAmount * e.wheelRotation * scrollBar.unitIncrement
-				MouseWheelEvent.WHEEL_BLOCK_SCROLL -> scrollBar.value += e.scrollAmount * e.wheelRotation * scrollBar.blockIncrement
+				MouseWheelEvent.WHEEL_UNIT_SCROLL -> scrollBar.value += e.scrollAmount * e.wheelRotation * scrollBar.unitIncrement / 2
+				MouseWheelEvent.WHEEL_BLOCK_SCROLL -> scrollBar.value += e.scrollAmount * e.wheelRotation * scrollBar.blockIncrement / 2
 			}
 		}
 		updateRows()

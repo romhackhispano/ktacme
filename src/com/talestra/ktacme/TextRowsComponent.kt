@@ -5,6 +5,7 @@ class TextRowsComponent : JPoolScrollPanel<TextRowComponent>() {
 		set(value) {
 			field = value
 			rowCount = value!!.entries.size
+			//scrollBar.value = 0
 			updateRows()
 		}
 
