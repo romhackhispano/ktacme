@@ -1,11 +1,11 @@
 package com.romhackhispano.ktacme
 
 import com.apple.eawt.Application
-import com.romhackhispano.ktacme.forms.GitSettingsDialog
-import com.romhackhispano.ktacme.forms.MainForm
+import com.romhackhispano.ktacme.forms.GitSettingsDialogRaw
+import com.romhackhispano.ktacme.forms.MainFormRaw
+import com.romhackhispano.ktacme.forms.click
 import com.romhackhispano.ktacme.project.ProjectRepo
 import com.romhackhispano.ktacme.project.ProjectRepos
-import com.romhackhispano.ktacme.project.ProjectSettings
 import com.romhackhispano.ktacme.settings.AcmeSettingsStorage
 import java.awt.Window
 import java.awt.event.WindowAdapter
@@ -49,7 +49,7 @@ inline fun catchShowDialog(message: String = "Error", callback: () -> Unit) {
 
 val Throwable.rootCause: Throwable get() = this.cause?.rootCause ?: this
 
-class MainFormExt : MainForm() {
+class MainFormExt : MainFormRaw() {
     var projectRepo: ProjectRepo? = null
     var project: TranslationProject? = null
         set(value) {
@@ -109,9 +109,7 @@ class MainFormExt : MainForm() {
             this.project = TranslationProject(projectRepo.textFolder)
         }
 
-        this.buttonAddProject.click {
-            addProjectAction()
-        }
+        //this.buttonAddProject.click { addProjectAction() }
 
         sectionComboBox.addActionListener {
             selectedSection()
@@ -184,18 +182,18 @@ class MainFormExt : MainForm() {
     }
 }
 
-class GitSettingsDialogExt : GitSettingsDialog() {
+class GitSettingsDialogExt : GitSettingsDialogRaw() {
     init {
         title = "Git settings"
-        userNameTextField.text = AcmeSettingsStorage.settings.gitUserName
+        nameTextField.text = AcmeSettingsStorage.settings.gitUserName
         emailTextField.text = AcmeSettingsStorage.settings.gitEmail
     }
 
     override fun onOK() {
         catchShowDialog {
-            if (userNameTextField.text.isEmpty()) invalidOp("Username can't be empty")
+            if (nameTextField.text.isEmpty()) invalidOp("Username can't be empty")
             if (emailTextField.text.isEmpty()) invalidOp("Email can't be empty")
-            AcmeSettingsStorage.settings.gitUserName = userNameTextField.text
+            AcmeSettingsStorage.settings.gitUserName = nameTextField.text
             AcmeSettingsStorage.settings.gitEmail = emailTextField.text
             AcmeSettingsStorage.save()
             super.onOK()
@@ -203,15 +201,7 @@ class GitSettingsDialogExt : GitSettingsDialog() {
     }
 }
 
-inline fun AbstractButton.click(crossinline callback: () -> Unit) {
-    this.addActionListener {
-        //println("****************")
-        //println(it.actionCommand)
-        callback()
-    }
-}
-
-fun <T: Window> T.showDialog(): T {
+fun <T : Window> T.showDialog(): T {
     pack()
     setLocationRelativeTo(null)
     isVisible = true

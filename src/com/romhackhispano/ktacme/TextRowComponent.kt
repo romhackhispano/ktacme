@@ -36,6 +36,7 @@ class TextRowComponent : JPanel() {
 			override fun changedUpdate(e: DocumentEvent) = update()
 
 			private fun update() {
+				cachedTranslatedText = translatedTextArea.text
 				entry.translated = translatedTextArea.text
 			}
 		})
@@ -48,6 +49,10 @@ class TextRowComponent : JPanel() {
 			setReviewed(reviewedCheckBox.isSelected)
 		}
 	}
+
+	private var cachedIdText: String = ""
+	private var cachedOriginalText: String = ""
+	private var cachedTranslatedText: String = ""
 
 	open class TextEntry(
 		open var id: String,
@@ -88,9 +93,18 @@ class TextRowComponent : JPanel() {
 	var entry: TextEntry = TextEntry("ID", "ORIGINAL", "TRANSLATED")
 		set(value) {
 			field = value
-			idLabel.text = field.id
-			originalTextArea.text = field.original
-			translatedTextArea.text = field.translated
+			if (cachedIdText != field.id) {
+				cachedIdText = field.id
+				idLabel.text = field.id
+			}
+			if (cachedOriginalText != field.original) {
+				cachedOriginalText = field.original
+				originalTextArea.text = field.original
+			}
+			if (cachedTranslatedText != field.translated) {
+				cachedTranslatedText = field.translated
+				translatedTextArea.text = field.translated
+			}
 			setTranslated(field.isTranslated)
 			setReviewed(field.isReviewed)
 		}

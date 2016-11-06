@@ -34,13 +34,22 @@ repositories {
 }
 
 jar {
+    //def srcFolder = new File("src").absoluteFile
+    //println(sourceSets.main.srcDirs)
+    //println(configurations.compile)
+
     manifest {
         attributes("Main-Class": "com.romhackhispano.ktacme.KtAcmeMain")
     }
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    //from("src") {
+    //    include "**/*.form"
+    //}
+    excludes = ["META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA"]
 }
+
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
