@@ -1,7 +1,5 @@
 package com.romhackhispano.ktacme;
 
-import com.talestra.ktacme.TextRowsComponent;
-
 import javax.swing.*;
 
 public class MainForm extends JFrame {
