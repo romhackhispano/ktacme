@@ -1,6 +1,10 @@
 package com.romhackhispano.ktacme
 
+import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ResetCommand
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.RefUpdate
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.CredentialItem
 import org.eclipse.jgit.transport.CredentialsProvider
@@ -28,9 +32,27 @@ class GitClient(val folder: File, val git: Git) {
         }
 
         fun clone(repo: String, folder: File): GitClient {
-            Git.cloneRepository().setCredentialsProvider(sdcp).setURI(repo).setDirectory(folder).call()
+            Git.cloneRepository()
+                    .setCredentialsProvider(sdcp)
+                    .setURI(repo)
+                    .setDirectory(folder)
+                    //.setBranch("HEAD")
+                    //.setBranchesToClone(listOf("refs/heads/master"))
+                    .setBare(false)
+                    .call()
             val client = open(folder)
-            client.setOrigin(repo)
+            //client.setOrigin(repo)
+            /*
+            client.git
+                    .checkout()
+                    .setCreateBranch(true)
+                    .setName("master")
+                    .setForce(true)
+                    .setStartPoint("origin/master")
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .call()
+                    */
+            //client.updateHead("refs/heads/master")
             return client
         }
 
@@ -39,7 +61,13 @@ class GitClient(val folder: File, val git: Git) {
             return open(folder)
         }
 
-        fun open(folder: File) = GitClient(folder, Git(FileRepositoryBuilder().setGitDir(folder[".git"]).build()))
+        fun open(folder: File): GitClient {
+            val afolder = folder.absoluteFile
+            val client = GitClient(afolder, Git(FileRepositoryBuilder().setGitDir(afolder[".git"]).readEnvironment().findGitDir().build()))
+            println("Opened git: " + afolder)
+            println("Opened git repository: " + client.git.repository.directory)
+            return client
+        }
     }
 
     private var defaultRemote: String? = null
@@ -58,11 +86,19 @@ class GitClient(val folder: File, val git: Git) {
     }
 
     fun add(file: File) {
-        git.add().addFilepattern(file.relativeTo(folder).path).setUpdate(true).call()
+        git.add().addFilepattern(file.absoluteFile.relativeTo(folder.absoluteFile).path).setUpdate(true).call()
     }
 
     fun commit(message: String, userName: String = defaultUserName, userEmail: String = defaultUserEmail) {
+        //updateHead("refs/for/master")
         git.commit().setMessage(message).setAuthor(userName, userEmail).call()
+    }
+
+    fun updateHead(newHead: String, force: Boolean = true, detach: Boolean = false): Boolean {
+        val repo = this.git.repository
+        val refUpdate = repo.refDatabase.newUpdate(Constants.HEAD, detach)
+        refUpdate.isForceUpdate = force
+        return refUpdate.link(newHead) != RefUpdate.Result.REJECTED
     }
 
     fun setOrigin(remote: String) {

@@ -3,7 +3,9 @@ package com.romhackhispano.ktacme
 import com.apple.eawt.Application
 import com.romhackhispano.ktacme.forms.GitSettingsDialog
 import com.romhackhispano.ktacme.forms.MainForm
+import com.romhackhispano.ktacme.project.ProjectRepo
 import com.romhackhispano.ktacme.project.ProjectRepos
+import com.romhackhispano.ktacme.project.ProjectSettings
 import com.romhackhispano.ktacme.settings.AcmeSettingsStorage
 import java.awt.Window
 import java.awt.event.WindowAdapter
@@ -28,15 +30,27 @@ object KtAcmeMain {
     }
 }
 
+inline fun complementCatch(message: String, callback: () -> Unit) {
+    try {
+        callback()
+    } catch (e: Throwable) {
+        throw java.lang.RuntimeException(message + " : " + e.message, e)
+    }
+}
+
 inline fun catchShowDialog(message: String = "Error", callback: () -> Unit) {
     try {
         callback()
     } catch (e: Throwable) {
-        JOptionPane.showMessageDialog(null, "${e.message}\n\n${e.stackTrace.take(8).joinToString("\n")}", message, JOptionPane.ERROR_MESSAGE)
+        JOptionPane.showMessageDialog(null, "${e.message}\n\n${e.rootCause.stackTrace.take(8).joinToString("\n")}", message, JOptionPane.ERROR_MESSAGE)
+        throw e
     }
 }
 
+val Throwable.rootCause: Throwable get() = this.cause?.rootCause ?: this
+
 class MainFormExt : MainForm() {
+    var projectRepo: ProjectRepo? = null
     var project: TranslationProject? = null
         set(value) {
             field = value
@@ -60,8 +74,26 @@ class MainFormExt : MainForm() {
         }
     }
 
+    fun addProjectAction() {
+        catchShowDialog {
+            val remoteUrl = JOptionPane.showInputDialog("Git Repository URL")
+            if (!remoteUrl.isNullOrBlank()) {
+                ProjectRepos.create(remoteUrl)
+                reloadProjectList()
+            }
+        }
+    }
+
     init {
+        title = "ktacme"
         this.jMenuBar = JMenuBar().apply {
+            add(JMenu("File").apply {
+                add(JMenuItem("Add project...").apply {
+                    addActionListener {
+                        addProjectAction()
+                    }
+                })
+            })
             add(JMenu("Settings").apply {
                 add(JMenuItem("Git Settings...").apply {
                     addActionListener {
@@ -72,28 +104,24 @@ class MainFormExt : MainForm() {
         }
 
         this.projectComboBox.addActionListener {
-            val projectInfo = ProjectRepos.getProject(this.projectComboBox.selectedItem.toString())
-            this.project = TranslationProject(projectInfo.textFolder)
+            val projectRepo = ProjectRepos.getProject(this.projectComboBox.selectedItem.toString())
+            this.projectRepo = projectRepo
+            this.project = TranslationProject(projectRepo.textFolder)
         }
 
-        this.buttonAddProject.addActionListener {
-            catchShowDialog {
-                val remoteUrl = JOptionPane.showInputDialog("Git Repository URL")
-                if (!remoteUrl.isNullOrBlank()) {
-                    ProjectRepos.create(remoteUrl)
-                    reloadProjectList()
-                }
-            }
+        this.buttonAddProject.click {
+            addProjectAction()
         }
 
         sectionComboBox.addActionListener {
             selectedSection()
         }
-        saveButton.addActionListener {
+        saveButton.click {
             lastSelectedSection?.save()
         }
-        syncButton.addActionListener {
+        syncButton.click {
             catchShowDialog {
+                val projectRepo = projectRepo ?: invalidOp("No project selected")
                 val project = project ?: invalidOp("No project selected")
                 val settings = AcmeSettingsStorage.settings
                 //val gitUserName = AcmeSettingsStorage.settings.gitUserName
@@ -101,7 +129,7 @@ class MainFormExt : MainForm() {
                 if (!settings.hasValidGitConfig()) GitSettingsDialogExt().showDialog()
                 if (!settings.hasValidGitConfig()) invalidOp("No valid git configuration")
 
-                val client = GitClient.open(project.folder).setAuthor(settings.gitUserName, settings.gitEmail)
+                val client = GitClient.open(projectRepo.folder).setAuthor(settings.gitUserName, settings.gitEmail)
                 //val client = client ?: invalidOp("Internal Error: No GIT client configured")
                 lastSelectedSection?.save()
                 for (section in project.sections.filterIsInstance<FileTranslationSection>()) {
@@ -109,16 +137,16 @@ class MainFormExt : MainForm() {
                 }
                 val mustCommit = client.hasChanges()
                 if (mustCommit) {
-                    catchShowDialog("Error while Commiting") {
+                    complementCatch("Error while Commiting (${client.folder})") {
                         client.commit("More work")
                     }
                 }
-                catchShowDialog("Error while Pulling") {
+                complementCatch("Error while Pulling") {
                     client.pull()
                 }
                 this.project = TranslationProject(project.folder)
                 if (mustCommit) {
-                    catchShowDialog("Error while Pushing") {
+                    complementCatch("Error while Pushing") {
                         client.push()
                     }
                 }
@@ -172,6 +200,14 @@ class GitSettingsDialogExt : GitSettingsDialog() {
             AcmeSettingsStorage.save()
             super.onOK()
         }
+    }
+}
+
+inline fun AbstractButton.click(crossinline callback: () -> Unit) {
+    this.addActionListener {
+        //println("****************")
+        //println(it.actionCommand)
+        callback()
     }
 }
 
