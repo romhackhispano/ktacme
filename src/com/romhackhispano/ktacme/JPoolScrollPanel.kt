@@ -34,7 +34,6 @@ abstract class JPoolScrollPanel<T : JComponent> : JPanel() {
 		//println(height)
 		val expectedRows = Math.ceil(height.toDouble() / rowHeight.toDouble()) + 1
 
-
 		while (rows.size < expectedRows) {
 			val row = createRow()
 			rows += row
@@ -90,8 +89,8 @@ abstract class JPoolScrollPanel<T : JComponent> : JPanel() {
 				MouseWheelEvent.WHEEL_BLOCK_SCROLL -> scrollBar.value += e.scrollAmount * e.wheelRotation * scrollBar.blockIncrement / 4
 			}
 		}
-		updateRows()
-		rowCount = 10
+		//updateRows()
+		//rowCount = 10
 	}
 
 	abstract fun createRow(): T

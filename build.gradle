@@ -23,6 +23,7 @@ sourceCompatibility = 1.5
 sourceSets {
     main.java.srcDirs = ['src']
     main.resources.srcDirs = ['resources']
+    test.java.srcDirs = ['test']
 }
 
 repositories {
@@ -32,10 +33,21 @@ repositories {
     mavenCentral()
 }
 
+jar {
+    manifest {
+        attributes("Main-Class": "com.romhackhispano.ktacme.KtAcmeMain")
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile "junit:junit:4.11"
     compile "org.eclipse.jgit:org.eclipse.jgit:4.5.0.201609210915-r"
+    //compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.4"
+
     //compile "org.eclipse.jgit:org.eclipse.jgit.pgm:4.5.0.201609210915-r"
 
     //compile 'com.jcraft:jsch.agentproxy.jsch:0.0.5'

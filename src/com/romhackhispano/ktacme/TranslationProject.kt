@@ -3,10 +3,10 @@ package com.romhackhispano.ktacme
 import java.io.File
 import java.util.*
 
-open class TranslationProject {
+open class TranslationProject(val folder: File) {
 	open val sections: ArrayList<TranslationSection> = arrayListOf()
 
-	constructor(folder: File) {
+	init {
 		for (file in folder.listFiles().filter { it.isFile }) {
 			val section = FileTranslationSection(file)
 			sections += section
