@@ -103,3 +103,20 @@ fun <T : JButton> T.makeDefault(): T {
     rootPane.defaultButton = this
     return this
 }
+
+fun JDialog.showDialog(): JDialog {
+    pack()
+    setLocationRelativeTo(null)
+    modalityType = Dialog.DEFAULT_MODALITY_TYPE
+    isVisible = true
+    return this
+}
+
+/*
+fun <T : Window> T.showDialog(): T {
+    pack()
+    setLocationRelativeTo(null)
+    isVisible = true
+    return this
+}
+*/

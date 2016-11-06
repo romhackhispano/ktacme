@@ -4,6 +4,7 @@ import com.apple.eawt.Application
 import com.romhackhispano.ktacme.forms.GitSettingsDialogRaw
 import com.romhackhispano.ktacme.forms.MainFormRaw
 import com.romhackhispano.ktacme.forms.click
+import com.romhackhispano.ktacme.forms.showDialog
 import com.romhackhispano.ktacme.project.ProjectRepo
 import com.romhackhispano.ktacme.project.ProjectRepos
 import com.romhackhispano.ktacme.settings.AcmeSettingsStorage
@@ -85,7 +86,7 @@ class MainFormExt : MainFormRaw() {
     }
 
     init {
-        title = "ktacme"
+        title = "ktacme - 0.1"
         this.jMenuBar = JMenuBar().apply {
             add(JMenu("File").apply {
                 add(JMenuItem("Add project...").apply {
@@ -176,8 +177,8 @@ class MainFormExt : MainFormRaw() {
     }
 
     fun setSection(section: TranslationSection) {
-        println("--------------------------")
-        println(section.texts)
+        //println("--------------------------")
+        //println(section.texts)
         this.textRowsComponent.repository = section.repository
     }
 }
@@ -199,11 +200,4 @@ class GitSettingsDialogExt : GitSettingsDialogRaw() {
             super.onOK()
         }
     }
-}
-
-fun <T : Window> T.showDialog(): T {
-    pack()
-    setLocationRelativeTo(null)
-    isVisible = true
-    return this
 }

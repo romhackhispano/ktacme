@@ -1,7 +1,9 @@
 package com.romhackhispano.ktacme.forms
 
+import java.awt.Frame
 import javax.swing.*
 
+//open class GitSettingsDialogRaw : JDialog(null as Frame?, true) {
 open class GitSettingsDialogRaw : JDialog() {
     lateinit var nameTextField: JTextField
     lateinit var emailTextField: JTextField
