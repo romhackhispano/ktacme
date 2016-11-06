@@ -1,4 +1,6 @@
-package com.talestra.ktacme;
+package com.romhackhispano.ktacme;
+
+import com.talestra.ktacme.TextRowsComponent;
 
 import javax.swing.*;
 

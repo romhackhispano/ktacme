@@ -1,4 +1,4 @@
-package com.talestra.ktacme
+package com.romhackhispano.ktacme
 
 class TextParser(val text: String) {
 	var pos = 0

@@ -1,4 +1,4 @@
-package com.talestra.ktacme
+package com.romhackhispano.ktacme
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
@@ -44,12 +44,12 @@ class GitClient(val folder: File, val git: Git) {
 	private var defaultUserName:String = ""
 	private var defaultUserEmail:String = ""
 
-	fun setRemote(remote:String):GitClient {
+	fun setRemote(remote:String): GitClient {
 		this.defaultRemote = remote
 		return this
 	}
 
-	fun setAuthor(userName:String, userEmail:String):GitClient {
+	fun setAuthor(userName:String, userEmail:String): GitClient {
 		this.defaultUserName = userName;
 		this.defaultUserEmail = userEmail;
 		return this

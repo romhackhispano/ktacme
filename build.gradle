@@ -1,4 +1,4 @@
-group 'com.talestra'
+group 'com.romhackhispano'
 version '0.1'
 
 buildscript {

@@ -1,4 +1,4 @@
-package com.talestra.ktacme
+package com.romhackhispano.ktacme
 
 import com.apple.eawt.Application
 import java.awt.event.WindowAdapter

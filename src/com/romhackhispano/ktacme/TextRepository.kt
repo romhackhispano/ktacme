@@ -1,4 +1,4 @@
-package com.talestra.ktacme
+package com.romhackhispano.ktacme
 
 open class TextRepository {
 	open val entries = arrayListOf<TextRowComponent.TextEntry>()

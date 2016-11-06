@@ -1,4 +1,4 @@
-package com.talestra.ktacme
+package com.romhackhispano.ktacme
 
 fun String.quoteAsCString() = "\"${this.escapeAsCString()}\""
 

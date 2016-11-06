@@ -1,4 +1,4 @@
-package com.talestra.ktacme
+package com.romhackhispano.ktacme
 
 class InvalidOperationException(msg: String) : RuntimeException(msg)
 
